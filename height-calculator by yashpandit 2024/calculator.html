@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Height & BMI Calculator</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #ff7eb3;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #ff4d6d;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* BMI Icon Container */
+        .bmi-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: #ff7eb3;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bmi-icon:hover {
+            background: #ff4d6d;
+            transform: scale(1.1);
+        }
+
+        .bmi-tooltip {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .bmi-icon:hover .bmi-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .bmi-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .bmi-modal button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: #ff4d6d;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Height Calculator -->
+    <div class="container">
+        <h1>Height Calculator</h1>
+        <p>Enter the time (in seconds) it took for the object to reach the ground:</p>
+        <input type="number" id="timeInput" placeholder="Time in seconds">
+        <select id="unit">
+            <option value="feet">Feet</option>
+            <option value="meters">Meters</option>
+            <option value="inches">Inches</option>
+        </select>
+        <button onclick="calculateHeight()">Calculate Height</button>
+        <p id="result"></p>
+    </div>
+
+    <!-- BMI Icon -->
+    <div class="bmi-icon" onclick="openBMI()">
+        <span>⚖️</span>
+        <div class="bmi-tooltip">Want to measure healthy weight?</div>
+    </div>
+
+    <!-- BMI Modal -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="bmi-modal" id="bmiModal">
+        <h2>BMI Calculator</h2>
+        <p>Enter your weight (in kg) and height (in cm) below:</p>
+        <input type="number" id="weightInput" placeholder="Weight (kg)">
+        <input type="number" id="heightInput" placeholder="Height (cm)">
+        <button onclick="calculateBMI()">Calculate BMI</button>
+        <p id="bmiResult"></p>
+        <button onclick="closeBMI()">Close</button>
+    </div>
+
+    <script>
+        // Calculate Height
+        function calculateHeight() {
+            var g = 32.17; // Gravity constant in ft/s^2
+            var time = parseFloat(document.getElementById("timeInput").value);
+            var unit = document.getElementById("unit").value;
+
+            if (isNaN(time) || time <= 0) {
+                document.getElementById("result").innerHTML =
+                    "Please enter a valid time (greater than 0).";
+                return;
+            }
+
+            var height = 0.5 * g * Math.pow(time, 2);
+
+            if (unit === "meters") {
+                height *= 0.3048; // Convert feet to meters
+            } else if (unit === "inches") {
+                height *= 12; // Convert feet to inches
+            }
+
+            document.getElementById("result").innerHTML =
+                "The object was dropped from a height of approximately <strong>" +
+                height.toFixed(2) +
+                "</strong> " +
+                unit +
+                ".";
+        }
+
+        // Open BMI Modal
+        function openBMI() {
+            document.getElementById("bmiModal").style.display = "block";
+            document.getElementById("modalOverlay").style.display = "block";
+        }
+
+        // Close BMI Modal
+        function closeBMI() {
+            document.getElementById("bmiModal").style.display = "none";
+            document.getElementById("modalOverlay").style.display = "none";
+        }
+
+        // Calculate BMI
+        function calculateBMI() {
+            var weight = parseFloat(document.getElementById("weightInput").value);
+            var height = parseFloat(document.getElementById("heightInput").value) / 100; // Convert height to meters
+
+            if (isNaN(weight)||isNaN(height)||weight <= 0 || height <= 0) { 
+     document.getElementById("bmiResult").innerText = 
+        "Please enter valid weight and height.";
+        return;
+            }
+
+            var bmi = weight / (height * height); // BMI Formula
+            var category = "";
+
+            if (bmi < 18.5) {
+                category = "Underweight";
+            } else if (bmi < 24.9) {
+                category = "Normal weight";
+            } else if (bmi < 29.9) {
+                category = "Overweight";
+            } else {
+                category = "Obese";
+            }
+
+            document.getElementById("bmiResult").innerHTML =
+                "Your BMI is <strong>" + bmi.toFixed(2) + "</strong> (" + category + ").";
+        }
+    </script>
+</body>
+</html>
