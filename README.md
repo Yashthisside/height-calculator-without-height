@@ -18,4 +18,4 @@ To use this calculator:
 
 1. Clone the repository: 
    ```bash
-   git clone <repository_url>
+   git clone <[repository_url](https://github.com/Yashthisside/height-calculator-without-height.git)>
